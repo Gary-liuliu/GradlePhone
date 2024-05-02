@@ -1,0 +1,21 @@
+package com.demo.gradle_demo.anno;
+
+import com.demo.gradle_demo.validator.NumberValidator;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+
+import java.lang.annotation.*;
+
+@Documented
+@Constraint(
+        validatedBy = {NumberValidator.class}
+)
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Number {
+    String message() default "查询长度只能是3或者11";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+}
