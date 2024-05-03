@@ -30,6 +30,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.9")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.retry:spring-retry:1.3.1")
 }
 
 
