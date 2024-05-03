@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Number {
-    String message() default "查询长度只能是3或者11";
+    String message() default "查询只能是3位或者11位的数字";
 
     Class<?>[] groups() default {};
 

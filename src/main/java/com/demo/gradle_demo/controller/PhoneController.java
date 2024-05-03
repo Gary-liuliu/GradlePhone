@@ -54,20 +54,25 @@ public class PhoneController {
             ValueOperations<String, String> option = stringRedisTemplate.opsForValue();
             String cachedPhone = option.get(phoneNumber);
 
+            // 模拟网络延迟
             try {
-                Thread.sleep(2000); // 模拟网络延迟
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             if (cachedPhone != null) {
+                System.out.println(cachedPhone);
                 return Result.success(cachedPhone);
             }
 
             Result phone = phoneService.getPhone(phoneNumber);
-            //存redis
-            option.set(phoneNumber, phone.getData(), 300, TimeUnit.SECONDS);
+            if (phone.getCode() == 0) {
+                //存redis
+                option.set(phoneNumber, phone.getData(), 300, TimeUnit.SECONDS);
+            }
             return phone;
+
         }, executorService);
 
         resultFuture.thenAcceptAsync(result -> {

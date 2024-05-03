@@ -3,11 +3,14 @@ package com.demo.gradle_demo.service.impl;
 import com.demo.gradle_demo.pojo.Result;
 import com.demo.gradle_demo.service.PhoneService;
 import com.demo.gradle_demo.utils.GetPhoneUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.Objects;
 
 @Service
 public class PhoneServiceImpl implements PhoneService {
@@ -18,9 +21,11 @@ public class PhoneServiceImpl implements PhoneService {
         String str = "88888888";
         int len = phoneNumber.length();
         String jsonPhone = GetPhoneUtil.getPhone(phoneNumber + str);
+        if (!isPhone(jsonPhone))
+            return Result.error("无法查找该手机号码！！！");
         if (len == 3) {
             // 处理长度为3的情况，替换province和city为"未查询"
-            return Result.success("供应商查找成功！！！",replaceUnqueried(jsonPhone));
+            return Result.success("供应商查找成功！！！", replaceUnqueried(jsonPhone));
         } else {
             return Result.success(StringEscapeUtils.unescapeJava(jsonPhone));
         }
@@ -34,6 +39,7 @@ public class PhoneServiceImpl implements PhoneService {
 
             // 获取data节点
             JsonNode dataNode = rootNode.get("data");
+
             if (dataNode instanceof ObjectNode) {
                 // 替换province和city字段的值为"未查询"
                 ((ObjectNode) dataNode).put("province", "未查询");
@@ -46,6 +52,23 @@ public class PhoneServiceImpl implements PhoneService {
             e.printStackTrace();
             return jsonPhone; // 发生异常时返回原始的JSON字符串
         }
+    }
+
+    public boolean isPhone(String jsonPhone) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        // 将JSON字符串转换为JsonNode对象
+        JsonNode rootNode = null;
+        try {
+            rootNode = objectMapper.readTree(jsonPhone);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        // 获取data节点
+        JsonNode dataNode = rootNode.get("data");
+        JsonNode spNode = dataNode.get("sp");
+
+        return !Objects.equals(spNode.asText(), "");
+
     }
 
 }
