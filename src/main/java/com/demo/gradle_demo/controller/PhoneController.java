@@ -83,11 +83,11 @@ public class PhoneController {
                 // 获取 Redis 有序集合操作对象
                 ZSetOperations<String, String> zSetOps = stringRedisTemplate.opsForZSet();
 
-                // 将手机号添加到最近的有序集合中，分值设为当前时间戳
+                // 分值设为当前时间戳
                 zSetOps.add("recent_set", phoneNumber, System.currentTimeMillis());
 
-                // 移除重复的手机号
-                zSetOps.removeRange("recent_set", 0, -6); // 只保留最新的6个手机号
+                // 保留最新的六个手机号
+                zSetOps.removeRange("recent_set", 0, -6);
             }
 
 
