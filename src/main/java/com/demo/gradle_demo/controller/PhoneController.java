@@ -80,15 +80,16 @@ public class PhoneController {
                 // 存储手机号到Redis
                 option.set(phoneNumber, (String) phone.getData(), 300, TimeUnit.SECONDS);
 
-                // 获取 Redis 列表操作对象
-                ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
+                // 获取 Redis 有序集合操作对象
+                ZSetOperations<String, String> zSetOps = stringRedisTemplate.opsForZSet();
 
-                // 将手机号添加到最近的列表中
-                listOps.leftPush("recent_phone_list", phoneNumber); // 将手机号添加到列表的头部
+                // 将手机号添加到最近的有序集合中，分值设为当前时间戳
+                zSetOps.add("recent_set", phoneNumber, System.currentTimeMillis());
 
-                // 控制列表长度为6
-                listOps.trim("recent_phone_list", 0, 5);
+                // 移除重复的手机号
+                zSetOps.removeRange("recent_set", 0, -6); // 只保留最新的6个手机号
             }
+
 
             return phone;
         });
@@ -104,11 +105,11 @@ public class PhoneController {
 
     @GetMapping()
     public Result<List<CachePhone>> getHistory() {
-        // 获取 Redis 列表操作对象
-        ListOperations<String, String> listOps = stringRedisTemplate.opsForList();
+        // 获取 Redis 有序集合操作对象
+        ZSetOperations<String, String> zSetOps = stringRedisTemplate.opsForZSet();
 
-        // 从 Redis 中获取最近的手机号列表
-        List<String> recentPhoneNumbers = listOps.range("recent_phone_list", 0, -1);
+        // 从 Redis 中获取最近的手机号集合，按照分值排序
+        Set<String> recentPhoneNumbers = zSetOps.range("recent_set", 0, -1);
 
         // 根据手机号从缓存中获取详细信息
         List<CachePhone> history = new ArrayList<>();
@@ -124,5 +125,6 @@ public class PhoneController {
 
         return Result.success(history);
     }
+
 
 }
