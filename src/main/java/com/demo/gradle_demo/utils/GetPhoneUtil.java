@@ -16,7 +16,6 @@ public class GetPhoneUtil {
 
             // 打开连接
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            // 设置请求方法
             connection.setRequestMethod("GET");
 
             // 获取响应内容
@@ -31,11 +30,9 @@ public class GetPhoneUtil {
             // 关闭连接
             connection.disconnect();
 
-            // 输出响应内容
             return response.toString();
         } catch (IOException e) {
             e.printStackTrace();
-            // 返回空字符串或其他默认值
             return "";
         }
     }
